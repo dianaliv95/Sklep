@@ -19,19 +19,59 @@
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            @{
+                // Odczytujemy z sesji, czy ktoś jest zalogowany
+                var userId = Context.Session.GetInt32("UserId");
+                // Odczytujemy z sesji, czy ktoś jest adminem (np. "true"/"false")
+                var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+            }
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
+                    <!-- Każdy (zalogowany i niezalogowany) może przeglądać produkty,
+                         ale przycisk "Dodaj Nowy Produkt" i tak ukryjemy w widoku, jeśli to zwykły user. -->
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Products" asp-action="Index">Produkty</a>
                     </li>
-                    
 
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Users" asp-action="Index">Użytkownicy</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Orders" asp-action="Index">Zamówienia</a>
-                    </li>
+                    <!-- Link do Użytkowników widoczny tylko dla admina -->
+                    @if (userId != null && isAdmin)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Users" asp-action="Index">Użytkownicy</a>
+                        </li>
+                    }
+
+                    <!-- Link do Zamówień, np. każdy zalogowany user widzi listę,
+                         ale jeśli to user, to w kodzie OrdersController ograniczymy widoczne zamówienia tylko do jego. -->
+                    @if (userId != null)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Orders" asp-action="Index">Zamówienia</a>
+                        </li>
+                    }
+                </ul>
+
+                <!-- Prawa strona nawigacji (logowanie/rejestracja/wyloguj) -->
+                <ul class="navbar-nav ml-auto">
+                    @if (userId == null)
+                    {
+                        <!-- Niezalogowany => Logowanie i Rejestracja -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Logowanie</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Register">Rejestracja</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Zalogowany => Wyloguj -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Logout">Wyloguj</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>

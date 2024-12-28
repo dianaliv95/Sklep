@@ -21,14 +21,25 @@ namespace Sklep.Controllers
         // GET: Orders/Index
         public async Task<IActionResult> Index()
         {
-            var orders = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderProducts)
-                    .ThenInclude(op => op.Product)
-                .ToListAsync();
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
 
+            // Jeżeli to admin -> widzi wszystkie zamówienia
+            // Jeżeli nieadmin -> widzi tylko swoje
+            IQueryable<Order> ordersQuery = _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderProducts).ThenInclude(op => op.Product);
+
+            if (!isAdmin)
+            {
+                // userId może być nullem, ale jeśli tu trafiamy, to raczej jest zalogowany
+                ordersQuery = ordersQuery.Where(o => o.UserId == userId);
+            }
+
+            var orders = await ordersQuery.ToListAsync();
             return View(orders);
         }
+
 
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -93,17 +104,16 @@ namespace Sklep.Controllers
                         return NotFound();
                     }
 
-                    // Aktualizacja podstawowych właściwości zamówienia
                     order.UserId = model.UserId;
                     order.OrderDate = model.OrderDate;
 
-                    // Aktualizacja produktów w zamówieniu
+                   
                     if (model.SelectedProductIds != null && model.SelectedProductIds.Any())
                     {
-                        // Usunięcie istniejących powiązań
+                        
                         _context.OrderProducts.RemoveRange(order.OrderProducts);
 
-                        // Dodanie nowych powiązań
+                        
                         foreach (var productId in model.SelectedProductIds)
                         {
                             order.OrderProducts.Add(new OrderProduct
@@ -119,7 +129,6 @@ namespace Sklep.Controllers
                         return View(model);
                     }
 
-                    // Zapis zmian
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -155,7 +164,19 @@ namespace Sklep.Controllers
         // GET: Orders/Create
         public async Task<IActionResult> Create()
         {
-            var users = await _context.Users.ToListAsync();
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                // Brak zalogowania -> przekieruj do logowania
+                return RedirectToAction("Login", "Auth");
+            }
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
+
+            // jeśli admin, pobieramy listę userów do selekta
+            var users = isAdmin
+                ? await _context.Users.ToListAsync()
+                : await _context.Users.Where(u => u.Id == userId).ToListAsync();
+
             var products = await _context.Products.ToListAsync();
 
             var model = new OrderCreateViewModel
@@ -180,6 +201,13 @@ namespace Sklep.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OrderCreateViewModel model)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
+
             if (ModelState.IsValid)
             {
                 try
@@ -207,7 +235,27 @@ namespace Sklep.Controllers
                         await PopulateSelectLists(model);
                         return View(model);
                     }
+                    var finalUserId = (isAdmin && model.UserId > 0) ? model.UserId : userId.Value;
+                     order = new Order
+                    {
+                        UserId = finalUserId,
+                        OrderDate = DateTime.Now
+                    };
 
+                    if (model.SelectedProductIds == null || !model.SelectedProductIds.Any())
+                    {
+                        ModelState.AddModelError("", "Musisz wybrać co najmniej jeden produkt.");
+                        await PopulateSelectLists(model, isAdmin, userId);
+                        return View(model);
+                    }
+
+                    foreach (var productId in model.SelectedProductIds)
+                    {
+                        order.OrderProducts.Add(new OrderProduct
+                        {
+                            ProductId = productId
+                        });
+                    }
                     // Zapis zamówienia do bazy danych
                     _context.Orders.Add(order);
                     await _context.SaveChangesAsync();
@@ -225,8 +273,27 @@ namespace Sklep.Controllers
             return View(model);
         }
 
-        
-        
+        private async Task PopulateSelectLists(OrderCreateViewModel model, bool isAdmin, int? userId)
+        {
+            var users = isAdmin
+                ? await _context.Users.ToListAsync()
+                : await _context.Users.Where(u => u.Id == userId).ToListAsync();
+
+            var products = await _context.Products.ToListAsync();
+
+            model.UsersSelectList = users.Select(u => new SelectListItem
+            {
+                Value = u.Id.ToString(),
+                Text = $"{u.FirstName} {u.LastName}"
+            }).ToList();
+
+            model.ProductsSelectList = products.Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = p.Name
+            }).ToList();
+        }
+
 
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)

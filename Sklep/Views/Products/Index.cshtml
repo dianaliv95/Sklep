@@ -61,4 +61,15 @@
     </tbody>
 </table>
 
-<a asp-action="Create" class="btn btn-primary">Dodaj Nowy Produkt</a>
+@{
+    var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+
+
+
+
+
+@if (isAdmin)
+{
+    <a asp-action="Create" class="btn btn-primary">Dodaj Nowy Produkt</a>
+}

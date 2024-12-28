@@ -21,8 +21,14 @@ namespace Sklep.Models
         public string Email { get; set; }
 
         [StringLength(200, ErrorMessage = "Adres nie może przekraczać 200 znaków.")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
+        [Required(ErrorMessage = "Login jest wymagany.")]
+        [StringLength(50, ErrorMessage = "Login nie może przekraczać 50 znaków.")]
+        public string Login { get; set; }
 
+        public string PasswordHash { get; set; }
+        public string Salt { get; set; }
+        public bool IsAdmin { get; set; }
         // Nawigacja do zamówień
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }

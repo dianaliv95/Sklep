@@ -6,6 +6,11 @@
 
 <h1 class="my-3">@ViewData["Title"]</h1>
 
+@{
+    // Odczytujemy info z sesji: czy to admin?
+    var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+}
+<h1 class="my-3">@ViewData["Title"]</h1>
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Create" method="post">
@@ -13,13 +18,23 @@
 
             <div asp-validation-summary="All" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label">Wybierz użytkownika:</label>
-                <select asp-for="UserId" class="form-control" asp-items="Model.UsersSelectList">
-                    <option value="">Wybierz użytkownika...</option>
-                </select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
+            @if (isAdmin)
+            {
+                <!-- Jeśli admin – pokazujemy dropdown z użytkownikami -->
+                <div class="form-group">
+                    <label asp-for="UserId" class="control-label">Wybierz użytkownika:</label>
+                    <select asp-for="UserId" class="form-control" asp-items="Model.UsersSelectList">
+                        <option value="">Wybierz użytkownika...</option>
+                    </select>
+                    <span asp-validation-for="UserId" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <!-- Jeśli zwykły user – w ogóle nie pokazujemy dropdowna -->
+                <!-- Można ewentualnie dodać hidden input, ale i tak zrobimy to w kontrolerze. -->
+            }
+
 
             <div class="form-group">
                 <label class="control-label">Wybierz produkty:</label>
