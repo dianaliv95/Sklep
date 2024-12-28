@@ -1,0 +1,64 @@
+﻿@model Sklep.Models.ProductIndexViewModel
+
+@{
+    ViewData["Title"] = "Lista Produktów";
+}
+
+<h1 class="my-4">Lista Produktów</h1>
+
+<div class="mb-3">
+    <form method="get" asp-action="Index">
+        <div class="form-group">
+            <label for="categoryId">Filtruj według kategorii:</label>
+            @Html.DropDownList("categoryId", Model.Categories, "Wszystkie kategorie", new { @class = "form-control", onchange = "this.form.submit()" })
+        </div>
+    </form>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Products.First().Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Products.First().Description)</th>
+            <th>@Html.DisplayNameFor(model => model.Products.First().Category.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Products.First().ImageUrl)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Products.Any())
+        {
+            foreach (var item in Model.Products)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" alt="@item.Name" width="100" />
+                        }
+                        else
+                        {
+                            <span>Brak zdjęcia</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Szczegóły</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edytuj</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Usuń</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">Brak produktów do wyświetlenia.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Dodaj Nowy Produkt</a>

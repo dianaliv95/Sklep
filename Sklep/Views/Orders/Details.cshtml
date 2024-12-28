@@ -1,0 +1,85 @@
+﻿@model Sklep.Models.Order
+
+@{
+    ViewData["Title"] = "Szczegóły Zamówienia";
+}
+
+<h1 class="my-4">@ViewData["Title"]</h1>
+
+<div>
+    <h4>Zamówienie</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.OrderDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.OrderDate)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.Email)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.FirstName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.FirstName) @Html.DisplayFor(model => model.User.LastName)
+        </dd>
+
+        <dt class="col-sm-2">
+            Produkty w Zamówieniu
+        </dt>
+        <dd class="col-sm-10">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nazwa Produktu</th>
+                        <th>Kategoria</th>
+                        <th>Opis</th>
+                        <th>Adres URL Zdjęcia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var orderProduct in Model.OrderProducts)
+                    {
+                        <tr>
+                            <td>@orderProduct.Product.Name</td>
+                            <td>@orderProduct.Product.Category</td>
+                            <td>@orderProduct.Product.Description</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(orderProduct.Product.ImageUrl))
+                                {
+                                    <img src="@orderProduct.Product.ImageUrl" alt="@orderProduct.Product.Name" width="100" />
+                                }
+                                else
+                                {
+                                    <span>Brak zdjęcia</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </dd>
+    </dl>
+</div>
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning mr-2">
+        <i class="fas fa-edit"></i> Edytuj
+    </a>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Powrót do Listy
+    </a>
+</div>

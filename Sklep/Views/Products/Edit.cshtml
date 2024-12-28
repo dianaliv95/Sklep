@@ -1,0 +1,69 @@
+﻿@model Sklep.Models.ProductEditViewModel
+
+@{
+    ViewData["Title"] = "Edytuj Produkt";
+}
+
+<h1>Edytuj Produkt</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryId" class="control-label">Kategoria</label>
+        <select asp-for="CategoryId" class="form-control" asp-items="Model.Categories" id="categorySelect">
+            <option value="">-- Wybierz Kategorię --</option>
+            <option value="-1">Dodaj nową kategorię</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <div class="form-group" id="newCategoryDiv" style="display:none;">
+        <label asp-for="NewCategoryName" class="control-label">Nowa Kategoria</label>
+        <input asp-for="NewCategoryName" class="form-control" />
+        <span asp-validation-for="NewCategoryName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ImageUrl" class="control-label"></label>
+        <input asp-for="ImageUrl" class="form-control" />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Zapisz" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.getElementById('categorySelect').addEventListener('change', function () {
+            var newCategoryDiv = document.getElementById('newCategoryDiv');
+            if (this.value === '-1') {
+                newCategoryDiv.style.display = 'block';
+            } else {
+                newCategoryDiv.style.display = 'none';
+                // Opcjonalnie: usuń wartość z NewCategoryName, jeśli nie dodajemy nowej kategorii
+                document.getElementById('NewCategoryName').value = '';
+            }
+        });
+
+        // Ustawienie widoczności pola 'Nowa Kategoria' na podstawie aktualnego wyboru kategorii
+        window.onload = function () {
+            var categorySelect = document.getElementById('categorySelect');
+            if (categorySelect.value === '-1') {
+                document.getElementById('newCategoryDiv').style.display = 'block';
+            }
+        };
+    </script>
+}

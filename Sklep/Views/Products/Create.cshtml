@@ -1,0 +1,56 @@
+﻿@model Sklep.Models.ProductCreateViewModel
+
+@{
+    ViewData["Title"] = "Dodaj Nowy Produkt";
+}
+
+<h1>Dodaj Nowy Produkt</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryId" class="control-label">Kategoria</label>
+        <select asp-for="CategoryId" class="form-control" asp-items="Model.Categories" id="categorySelect">
+            <option value="">-- Wybierz Kategorię --</option>
+            <option value="-1">Dodaj nową kategorię</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <div class="form-group" id="newCategoryDiv" style="display:none;">
+        <label asp-for="NewCategoryName" class="control-label">Nowa Kategoria</label>
+        <input asp-for="NewCategoryName" class="form-control" />
+        <span asp-validation-for="NewCategoryName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ImageUrl" class="control-label"></label>
+        <input asp-for="ImageUrl" class="form-control" />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Dodaj" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById('categorySelect').addEventListener('change', function () {
+            const newCategoryDiv = document.getElementById('newCategoryDiv');
+            if (this.value === '-1') {
+                newCategoryDiv.style.display = 'block';
+            } else {
+                newCategoryDiv.style.display = 'none';
+                document.getElementById('NewCategoryName').value = ''; // Resetuj wartość
+            }
+        });
+    </script>
+}
+

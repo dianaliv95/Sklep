@@ -1,0 +1,32 @@
+﻿@model Sklep.Models.User
+
+@{
+    ViewData["Title"] = "Szczegóły Użytkownika";
+}
+
+<h1 class="my-3">@ViewData["Title"]</h1>
+
+<div>
+    <h4>Użytkownik</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Imię</dt>
+        <dd class="col-sm-10">@Model.FirstName</dd>
+
+        <dt class="col-sm-2">Nazwisko</dt>
+        <dd class="col-sm-10">@Model.LastName</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Adres</dt>
+        <dd class="col-sm-10">@Model.Address</dd>
+    </dl>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Edytuj
+    </a>
+    <a asp-action="Index" class="btn btn-secondary">Powrót do Listy</a>
+</div>
